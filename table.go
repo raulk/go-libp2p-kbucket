@@ -50,6 +50,7 @@ func NewRoutingTable(bucketsize int, localID ID, latency time.Duration, m pstore
 		PeerAdded:   func(peer.ID) {},
 	}
 
+	fmt.Println("built DHT table")
 	return rt
 }
 
@@ -91,8 +92,10 @@ func (rt *RoutingTable) Update(p peer.ID) {
 		if bucketID == len(rt.Buckets)-1 {
 			rt.nextBucket()
 		} else {
+			dropped := bucket.PopBack()
+			fmt.Printf("[bucketid=%d] old peer dropped in favour of incoming peer, dropped: %v, new: %v\n", bucketID, dropped.String(), p.String())
 			// If the bucket cant split kick out least active node
-			rt.PeerRemoved(bucket.PopBack())
+			rt.PeerRemoved(dropped)
 		}
 	}
 }
